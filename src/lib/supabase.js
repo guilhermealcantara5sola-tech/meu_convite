@@ -70,3 +70,76 @@ export async function getGodparentMessages() {
     return { success: false, data: [] };
   }
 }
+// Helper to fetch all invitations from Supabase
+export async function getInvitationsFromSupabase() {
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('convites')
+        .select('*')
+        .order('id', { ascending: true });
+
+      if (!error && data && data.length > 0) {
+        // Map database fields (if snake_case) to app format
+        const formatted = data.map(item => ({
+          id: item.id,
+          nomes: item.nomes,
+          nomesCurto: item.nomes_curto || item.nomesCurto || item.nomes,
+          video: item.video,
+          mensagem: item.mensagem
+        }));
+        return { success: true, data: formatted };
+      }
+    } catch (err) {
+      console.warn('Tabela convites não encontrada ou erro no Supabase:', err);
+    }
+  }
+  return { success: false, data: null };
+}
+
+// Helper to save or update an invitation in Supabase
+export async function saveInvitationToSupabase(invitation) {
+  if (supabase) {
+    try {
+      const payload = {
+        id: invitation.id,
+        nomes: invitation.nomes,
+        nomes_curto: invitation.nomesCurto || invitation.nomes,
+        video: invitation.video,
+        mensagem: invitation.mensagem
+      };
+
+      const { data, error } = await supabase
+        .from('convites')
+        .upsert([payload], { onConflict: 'id' });
+
+      if (error) {
+        console.error('Erro ao salvar convite no Supabase:', error);
+      } else {
+        return { success: true, data };
+      }
+    } catch (err) {
+      console.warn('Erro ao salvar no Supabase:', err);
+    }
+  }
+  return { success: false };
+}
+
+// Helper to delete an invitation from Supabase
+export async function deleteInvitationFromSupabase(id) {
+  if (supabase) {
+    try {
+      const { error } = await supabase
+        .from('convites')
+        .delete()
+        .eq('id', id);
+
+      if (!error) {
+        return { success: true };
+      }
+    } catch (err) {
+      console.warn('Erro ao excluir do Supabase:', err);
+    }
+  }
+  return { success: false };
+}

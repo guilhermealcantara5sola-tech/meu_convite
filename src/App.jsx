@@ -3,6 +3,11 @@ import { defaultInvitations, fallbackData } from './data/defaultInvitations';
 import ConvitePage from './components/ConvitePage';
 import AdminPanel from './components/AdminPanel';
 import PainelNoiva from './components/PainelNoiva';
+import { 
+  getInvitationsFromSupabase, 
+  saveInvitationToSupabase, 
+  deleteInvitationFromSupabase 
+} from './lib/supabase';
 
 export default function App() {
   // Load stored invitations or default ones
@@ -20,6 +25,17 @@ export default function App() {
     }
     return defaultInvitations;
   });
+
+  // Try to load latest invitations from Supabase on mount
+  useEffect(() => {
+    async function loadFromSupabase() {
+      const res = await getInvitationsFromSupabase();
+      if (res.success && res.data && res.data.length > 0) {
+        setInvitations(res.data);
+      }
+    }
+    loadFromSupabase();
+  }, []);
 
   // View counter state
   const [viewCounts, setViewCounts] = useState(() => {
@@ -47,20 +63,27 @@ export default function App() {
     const parseUrlCode = () => {
       let rawData = "";
       
-      // Check hash (#link01, #noiva, #admin)
-      if (window.location.hash && window.location.hash.length > 1) {
-        rawData = window.location.hash.substring(1).split('?')[0];
-      } 
-      // Check query parameter (?id=link01, ?noiva)
-      else if (window.location.search && window.location.search.length > 1) {
+      // 1. Check query parameter (?id=link01, ?noiva) FIRST (most reliable for QR codes)
+      if (window.location.search && window.location.search.length > 1) {
         const searchParams = new URLSearchParams(window.location.search);
         if (searchParams.has('id')) {
           rawData = searchParams.get('id');
         } else if (searchParams.has('noiva')) {
           rawData = 'noiva';
         } else {
-          rawData = window.location.search.substring(1).split('&')[0];
+          const firstParam = window.location.search.substring(1).split('&')[0];
+          if (firstParam.includes('=')) {
+            const [, val] = firstParam.split('=');
+            rawData = val || firstParam;
+          } else {
+            rawData = firstParam;
+          }
         }
+      }
+      
+      // 2. Fallback to check hash (#link01, #noiva, #admin) if no query param was found
+      if (!rawData && window.location.hash && window.location.hash.length > 1) {
+        rawData = window.location.hash.substring(1).split('?')[0];
       }
 
       const cleanCode = decodeURIComponent(rawData).trim().toLowerCase();
@@ -90,6 +113,7 @@ export default function App() {
 
   // Save invitation handler
   const handleSaveInvitation = (newInvite) => {
+    saveInvitationToSupabase(newInvite);
     setInvitations((prev) => {
       const existsIndex = prev.findIndex((inv) => inv.id.toLowerCase() === newInvite.id.toLowerCase());
       if (existsIndex >= 0) {
@@ -103,6 +127,7 @@ export default function App() {
 
   // Delete invitation handler
   const handleDeleteInvitation = (id) => {
+    deleteInvitationFromSupabase(id);
     setInvitations((prev) => prev.filter((inv) => inv.id.toLowerCase() !== id.toLowerCase()));
   };
 

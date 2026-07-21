@@ -117,7 +117,8 @@ export default function AdminPanel({
   };
 
   const getFullUrl = (id) => {
-    return `${currentBaseUrl}#${id}`;
+    const cleanBase = (window.location.origin + window.location.pathname).replace(/#.*$/, '');
+    return `${cleanBase}?id=${id}`;
   };
 
   const handleCopySingleLink = (id) => {
@@ -454,6 +455,11 @@ export default function AdminPanel({
                           <p className="text-gray-400 font-mono text-[11px] truncate">
                             <span className="text-gray-500 font-semibold">Vídeo:</span> {inv.video}
                           </p>
+                          {inv.video.includes('Andressa%20e%20Natan.mp4') && inv.id !== 'link01' && (
+                            <p className="mt-1 text-[10px] text-amber-700 font-medium bg-amber-50 px-2 py-0.5 rounded border border-amber-200/60 inline-block">
+                              ⚠️ Usando vídeo padrão de exemplo (Andressa). Clique em editar (✏️) para alterar o link do vídeo deste casal.
+                            </p>
+                          )}
                         </div>
                       </div>
 
