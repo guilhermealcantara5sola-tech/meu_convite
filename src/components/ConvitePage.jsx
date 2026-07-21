@@ -74,7 +74,7 @@ export default function ConvitePage({ convidado, onOpenAdmin }) {
       presenca: "confirmado"
     });
 
-    // Generate WhatsApp link as backup
+    // Generate WhatsApp link
     const text = encodeURIComponent(`Olá Noiva! Assistimos ao vídeo do convite e ficamos super emocionados! SIM, aceitamos com muito amor ser padrinhos de vocês! 💍❤️✨`);
     window.open(`https://wa.me/?text=${text}`, '_blank');
   };
@@ -122,7 +122,7 @@ export default function ConvitePage({ convidado, onOpenAdmin }) {
       </div>
 
       {/* Main Glassmorphism Card */}
-      <div className="glass-panel relative z-10 w-full max-w-5xl rounded-3xl p-5 sm:p-10 md:p-12 fade-in my-6">
+      <div className="glass-panel relative z-10 w-full max-w-2xl rounded-3xl p-5 sm:p-10 fade-in my-6 text-center">
         
         {/* Decorative Top Accent */}
         <div className="flex justify-center mb-6">
@@ -133,144 +133,142 @@ export default function ConvitePage({ convidado, onOpenAdmin }) {
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-8 lg:gap-12 items-center">
+        {/* ============================================================ */}
+        {/* 1. SEÇÃO DE VÍDEO NO TOPO DA PÁGINA (DESTAQUE PRINCIPAL)      */}
+        {/* ============================================================ */}
+        <div className="w-full flex flex-col items-center justify-center mb-8">
           
-          {/* Lado Esquerdo: Mensagem e Formulário para a Noiva */}
-          <div className="w-full md:w-3/5 text-center md:text-left flex flex-col justify-center">
-            
-            <p className="text-xs sm:text-sm tracking-[0.25em] text-gray-500 uppercase mb-3 font-semibold">
-              Com muito amor, convidamos
-            </p>
-            
-            <div className="my-2 min-h-[80px] flex items-center justify-center md:justify-start">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl text-[#b89579] leading-tight font-semibold italic tracking-tight font-serif">
-                {convidado.nomes}
-              </h1>
-            </div>
-
-            <div className="w-20 h-[2px] bg-[#b89579]/30 my-4 mx-auto md:mx-0"></div>
-
-            <div className="space-y-4 text-gray-600 text-base sm:text-lg leading-relaxed font-light">
-              <p>
-                Vocês, <strong className="text-[#b89579] font-serif font-normal italic">{convidado.nomesCurto || convidado.nomes}</strong>, sempre fizeram parte da nossa história e não poderíamos imaginar o nosso grande dia sem vocês ao nosso lado.
-              </p>
-              <p>
-                {convidado.mensagem || "Assista ao vídeo especial que gravamos especialmente para vocês!"}
-              </p>
-            </div>
-
-            {/* Aceitar Convite Button */}
-            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4">
-              <button
-                onClick={handleAceitar}
-                className={`w-full sm:w-auto px-7 py-3.5 rounded-full font-medium text-base transition-all transform active:scale-95 flex items-center justify-center gap-2 shadow-lg ${
-                  hasAccepted
-                    ? 'bg-emerald-600 text-white shadow-emerald-600/30'
-                    : 'bg-[#b89579] hover:bg-[#a38065] text-white shadow-[#b89579]/30 pulse-glow'
-                }`}
-              >
-                <Sparkles className="w-5 h-5" />
-                {hasAccepted ? 'Presença Confirmada! ❤️' : 'Aceitamos o Convite! ✨'}
-              </button>
-            </div>
-
-            {/* FORMULÁRIO DE MENSAGEM DIRETA PARA A NOIVA */}
-            <div className="mt-8 p-5 bg-white/70 rounded-2xl border border-amber-100 shadow-sm text-left">
-              <div className="flex items-center gap-2 mb-2 text-[#b89579]">
-                <MessageCircle className="w-5 h-5" />
-                <h3 className="font-serif font-semibold text-gray-800 text-base">Deixe um Recado para os Noivos</h3>
-              </div>
-
-              {messageSent ? (
-                <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-sm flex items-center gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
-                  <div>
-                    <p className="font-medium">Mensagem enviada com sucesso!</p>
-                    <p className="text-xs text-emerald-700 mt-0.5">A Noiva vai receber seu carinho no Painel. 💖</p>
-                  </div>
-                </div>
-              ) : (
-                <form onSubmit={handleSendCustomMessage} className="space-y-3">
-                  <textarea
-                    value={mensagemTexto}
-                    onChange={(e) => setMensagemTexto(e.target.value)}
-                    placeholder="Escreva uma mensagem especial para a noiva..."
-                    rows={3}
-                    className="w-full p-3 text-sm rounded-xl border border-gray-200 focus:border-[#b89579] focus:ring-2 focus:ring-[#b89579]/20 outline-none transition-all bg-white"
-                    required
-                  />
-                  <button
-                    type="submit"
-                    disabled={isSending}
-                    className="w-full sm:w-auto px-5 py-2.5 bg-[#b89579] hover:bg-[#a38065] text-white text-xs font-medium rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 disabled:opacity-50"
-                  >
-                    {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                    <span>{isSending ? 'Enviando...' : 'Enviar Mensagem para a Noiva'}</span>
-                  </button>
-                </form>
-              )}
-            </div>
-
-            {/* Footer Date */}
-            <div className="mt-8 border-t border-gray-200/70 pt-5">
-              <p className="serif-font text-xl sm:text-2xl text-gray-800 italic">
-                O Nosso Grande Dia
-              </p>
-              <p className="text-xs text-gray-500 mt-1 uppercase tracking-[0.2em]">Em Breve • Salve essa data</p>
-            </div>
-
+          <div className="mb-4 text-center z-20 w-full">
+            <p className="text-[11px] uppercase tracking-[0.25em] text-gray-400 font-semibold mb-1">Vídeo Especial Para</p>
+            <h2 className="text-3xl sm:text-4xl text-[#b89579] font-serif italic">{convidado.nomesCurto || convidado.nomes}</h2>
           </div>
 
-          {/* Lado Direito: Player de Vídeo em Moldura Smartphone (9:16) */}
-          <div className="w-full md:w-2/5 flex flex-col items-center justify-center">
-            
-            <div className="mb-3 text-center z-20 w-full">
-              <p className="text-[11px] uppercase tracking-[0.2em] text-gray-400 font-semibold mb-1">Vídeo Especial Para</p>
-              <h2 className="text-2xl sm:text-3xl text-[#b89579] font-serif italic">{convidado.nomesCurto || convidado.nomes}</h2>
-            </div>
-
-            <div className="video-container bg-slate-900 flex items-center justify-center relative shadow-2xl">
-              
-              {isMp4 ? (
-                <>
-                  <video 
-                    ref={videoRef}
-                    className="z-10 relative w-full h-full object-cover" 
-                    controls
-                    playsInline
-                    preload="metadata"
-                    src={convidado.video}
-                    onPlay={() => setIsPlaying(true)}
-                    onPause={() => setIsPlaying(false)}
-                  />
-                  
-                  {!isPlaying && (
-                    <button
-                      onClick={togglePlay}
-                      className="absolute z-20 w-16 h-16 rounded-full bg-[#b89579]/90 text-white flex items-center justify-center shadow-xl hover:scale-110 transition-transform backdrop-blur-sm"
-                      title="Play Vídeo"
-                    >
-                      <Play className="w-8 h-8 ml-1 fill-white" />
-                    </button>
-                  )}
-                </>
-              ) : (
-                <iframe 
-                  className="z-10 relative w-full h-full"
-                  src={convidado.video} 
-                  title="Convite Especial dos Padrinhos" 
-                  frameBorder="0" 
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                  allowFullScreen
+          <div className="video-container bg-slate-900 flex items-center justify-center relative shadow-2xl">
+            {isMp4 ? (
+              <>
+                <video 
+                  ref={videoRef}
+                  className="z-10 relative w-full h-full object-cover" 
+                  controls
+                  playsInline
+                  preload="metadata"
+                  src={convidado.video}
+                  onPlay={() => setIsPlaying(true)}
+                  onPause={() => setIsPlaying(false)}
                 />
-              )}
-              
+                
+                {!isPlaying && (
+                  <button
+                    onClick={togglePlay}
+                    className="absolute z-20 w-16 h-16 rounded-full bg-[#b89579]/90 text-white flex items-center justify-center shadow-xl hover:scale-110 transition-transform backdrop-blur-sm"
+                    title="Play Vídeo"
+                  >
+                    <Play className="w-8 h-8 ml-1 fill-white" />
+                  </button>
+                )}
+              </>
+            ) : (
+              <iframe 
+                className="z-10 relative w-full h-full"
+                src={convidado.video} 
+                title="Convite Especial dos Padrinhos" 
+                frameBorder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                allowFullScreen
+              />
+            )}
+          </div>
+
+          <p className="text-xs text-gray-400 mt-3 text-center flex items-center gap-1">
+            <span>▶️ Clique para dar play no vídeo da noiva</span>
+          </p>
+
+        </div>
+
+        {/* ============================================================ */}
+        {/* 2. SEÇÃO DE CONVITE E MENSAGENS ABAIXO DO VÍDEO               */}
+        {/* ============================================================ */}
+        <div className="w-full flex flex-col items-center text-center">
+          
+          <p className="text-xs sm:text-sm tracking-[0.25em] text-gray-500 uppercase mb-2 font-semibold">
+            Com muito amor, convidamos
+          </p>
+          
+          <div className="my-2 min-h-[70px] flex items-center justify-center">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl text-[#b89579] leading-tight font-semibold italic tracking-tight font-serif">
+              {convidado.nomes}
+            </h1>
+          </div>
+
+          <div className="w-24 h-[2px] bg-[#b89579]/30 my-5 mx-auto"></div>
+
+          <div className="space-y-4 text-gray-600 text-base sm:text-lg leading-relaxed font-light max-w-lg mx-auto">
+            <p>
+              Vocês, <strong className="text-[#b89579] font-serif font-normal italic">{convidado.nomesCurto || convidado.nomes}</strong>, sempre fizeram parte da nossa história e não poderíamos imaginar o nosso grande dia sem vocês ao nosso lado.
+            </p>
+            <p>
+              {convidado.mensagem || "Assista ao vídeo especial acima que gravamos especialmente para vocês!"}
+            </p>
+          </div>
+
+          {/* Aceitar Convite Button */}
+          <div className="mt-8 w-full max-w-md">
+            <button
+              onClick={handleAceitar}
+              className={`w-full py-4 rounded-full font-medium text-base sm:text-lg transition-all transform active:scale-95 flex items-center justify-center gap-2 shadow-lg ${
+                hasAccepted
+                  ? 'bg-emerald-600 text-white shadow-emerald-600/30'
+                  : 'bg-[#b89579] hover:bg-[#a38065] text-white shadow-[#b89579]/30 pulse-glow'
+              }`}
+            >
+              <Sparkles className="w-5 h-5" />
+              {hasAccepted ? 'Presença Confirmada! ❤️' : 'Aceitamos o Convite! ✨'}
+            </button>
+          </div>
+
+          {/* FORMULÁRIO DE MENSAGEM DIRETA PARA A NOIVA */}
+          <div className="mt-10 w-full max-w-md p-6 bg-white/80 rounded-3xl border border-amber-100 shadow-sm text-left">
+            <div className="flex items-center gap-2 mb-3 text-[#b89579]">
+              <MessageCircle className="w-5 h-5" />
+              <h3 className="font-serif font-semibold text-gray-800 text-base">Deixe um Recado para a Noiva & Noivo</h3>
             </div>
 
-            <p className="text-xs text-gray-400 mt-3 text-center flex items-center gap-1">
-              <span>▶️ Clique para dar play no vídeo</span>
-            </p>
+            {messageSent ? (
+              <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-emerald-800 text-sm flex items-center gap-3">
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                <div>
+                  <p className="font-medium">Mensagem enviada com sucesso!</p>
+                  <p className="text-xs text-emerald-700 mt-0.5">A Noiva vai receber seu carinho no Painel! 💖</p>
+                </div>
+              </div>
+            ) : (
+              <form onSubmit={handleSendCustomMessage} className="space-y-3">
+                <textarea
+                  value={mensagemTexto}
+                  onChange={(e) => setMensagemTexto(e.target.value)}
+                  placeholder="Escreva uma mensagem especial para a noiva..."
+                  rows={3}
+                  className="w-full p-3.5 text-sm rounded-2xl border border-gray-200 focus:border-[#b89579] focus:ring-2 focus:ring-[#b89579]/20 outline-none transition-all bg-white"
+                  required
+                />
+                <button
+                  type="submit"
+                  disabled={isSending}
+                  className="w-full py-3 bg-[#b89579] hover:bg-[#a38065] text-white text-sm font-medium rounded-xl transition-all shadow-md shadow-[#b89579]/20 flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                  <span>{isSending ? 'Enviando...' : 'Enviar Mensagem para a Noiva'}</span>
+                </button>
+              </form>
+            )}
+          </div>
 
+          {/* Footer Date */}
+          <div className="mt-10 border-t border-gray-200/70 pt-6 w-full">
+            <p className="serif-font text-2xl text-gray-800 italic">
+              Nosso Casamento
+            </p>
+            <p className="text-xs text-gray-500 mt-1 uppercase tracking-[0.2em]">Em Breve • Salve essa data</p>
           </div>
 
         </div>
