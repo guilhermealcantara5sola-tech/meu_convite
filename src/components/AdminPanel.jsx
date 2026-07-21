@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Plus, Edit, Trash2, Copy, Check, QrCode as QrIcon, Eye, 
   Smartphone, Download, RotateCcw, Video, Heart, 
-  CheckCircle2, Sparkles, MessageCircle, Mail, RefreshCw, LayoutGrid
+  CheckCircle2, Sparkles, MessageCircle, Mail, RefreshCw, LayoutGrid, HeartHandshake, ExternalLink
 } from 'lucide-react';
 import QRCodeModal from './QRCodeModal';
 import MobilePreviewModal from './MobilePreviewModal';
@@ -34,8 +34,10 @@ export default function AdminPanel({
   // Feedback Toast
   const [toastMessage, setToastMessage] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
+  const [copiedNoivaLink, setCopiedNoivaLink] = useState(false);
 
   const currentBaseUrl = window.location.origin + window.location.pathname;
+  const noivaLink = `${currentBaseUrl}#noiva`;
 
   const loadMensagens = async () => {
     setLoadingMensagens(true);
@@ -126,6 +128,13 @@ export default function AdminPanel({
     setTimeout(() => setCopiedId(null), 2000);
   };
 
+  const handleCopyNoivaLink = () => {
+    navigator.clipboard.writeText(noivaLink);
+    setCopiedNoivaLink(true);
+    showToast("Link do Painel da Noiva copiado para a área de transferência! 👰");
+    setTimeout(() => setCopiedNoivaLink(false), 2500);
+  };
+
   const handleCopyAllLinks = () => {
     const listText = invitations
       .map((inv, index) => `${index + 1}. ${inv.nomes}\nLink: ${getFullUrl(inv.id)}\nVídeo: ${inv.video}\n`)
@@ -136,6 +145,7 @@ export default function AdminPanel({
 
   const handleDownloadTxt = () => {
     const listText = `LISTA DE CONVITES DOS PADRINHOS & QR CODES\n--------------------------------------------\n\n` +
+      `LINK PAINEL DA NOIVA: ${noivaLink}\n\n` +
       invitations.map((inv, index) => (
         `CONVITE #${index + 1}: ${inv.nomes}\n` +
         `CÓDIGO: ${inv.id}\n` +
@@ -168,23 +178,23 @@ export default function AdminPanel({
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-50 text-[#b89579] rounded-full text-xs font-semibold uppercase tracking-wider mb-2 border border-amber-200/50">
             <Heart className="w-3.5 h-3.5 fill-[#b89579]" />
-            Painel da Noiva & Gerador de Convites
+            Painel de Controle Master (Administrador)
           </div>
           <h1 className="text-3xl font-serif font-bold text-gray-900">
-            Gerenciador dos Padrinhos & Madrinhas
+            Gerenciador dos Convites
           </h1>
           <p className="text-sm text-gray-500 mt-1">
-            Cadastre os vídeos do Supabase, gere os links/QR Codes e receba recados dos padrinhos.
+            Cadastre os vídeos do Supabase, gere QR Codes e compartilhe o link com a noiva.
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <button
             onClick={handleCopyAllLinks}
             className="flex items-center gap-2 px-4 py-2.5 bg-amber-50 hover:bg-amber-100 text-[#b89579] border border-amber-200/70 font-medium rounded-xl text-sm transition-all shadow-sm active:scale-95"
           >
             <Copy className="w-4 h-4" />
-            Copiar 10 Links
+            Copiar 10 Links dos Padrinhos
           </button>
           
           <button
@@ -196,6 +206,57 @@ export default function AdminPanel({
           </button>
         </div>
       </header>
+
+      {/* ============================================================ */}
+      {/* CARD DESTACADO PARA COPIAR E MANDAR O LINK DA NOIVA          */}
+      {/* ============================================================ */}
+      <div className="max-w-6xl mx-auto mb-8 bg-gradient-to-r from-rose-50 to-amber-50 border border-rose-200/80 p-6 rounded-3xl shadow-sm">
+        <div className="flex items-center justify-between gap-4 mb-2">
+          <div className="flex items-center gap-2 text-rose-800">
+            <span className="text-2xl">👰</span>
+            <h3 className="font-serif font-bold text-lg">Link do Painel da Noiva</h3>
+          </div>
+          <span className="text-xs bg-rose-200/70 text-rose-800 font-semibold px-3 py-1 rounded-full uppercase tracking-wider">
+            Para a Noiva Acompanhar
+          </span>
+        </div>
+
+        <p className="text-xs text-rose-700 mb-3">
+          Copie este link e envie para a noiva no WhatsApp. Nele ela verá os recados recebidos, confirmações dos padrinhos e contador de acessos:
+        </p>
+
+        <div className="flex flex-col sm:flex-row items-center gap-3">
+          <input
+            type="text"
+            readOnly
+            value={noivaLink}
+            className="w-full px-4 py-3 bg-white font-mono text-xs sm:text-sm text-gray-800 rounded-xl border border-rose-200 shadow-inner select-all outline-none"
+          />
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <button
+              onClick={handleCopyNoivaLink}
+              className={`w-full sm:w-auto px-6 py-3 rounded-xl font-medium text-xs sm:text-sm transition-all shadow-md active:scale-95 flex items-center justify-center gap-2 ${
+                copiedNoivaLink 
+                  ? 'bg-emerald-600 text-white shadow-emerald-600/30' 
+                  : 'bg-rose-600 hover:bg-rose-700 text-white shadow-rose-600/30'
+              }`}
+            >
+              {copiedNoivaLink ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+              <span>{copiedNoivaLink ? 'Link Copiado! ❤️' : 'Copiar Link da Noiva'}</span>
+            </button>
+
+            <a
+              href={noivaLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-3 bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 rounded-xl text-xs font-medium transition-all shadow-sm"
+              title="Testar abrir o Painel da Noiva"
+            >
+              <ExternalLink className="w-4 h-4 text-[#b89579]" />
+            </a>
+          </div>
+        </div>
+      </div>
 
       {/* Tabs Navigation */}
       <div className="max-w-6xl mx-auto mb-6 flex gap-2 border-b border-gray-200 pb-2">
@@ -220,7 +281,7 @@ export default function AdminPanel({
           }`}
         >
           <Mail className="w-4 h-4" />
-          <span>Caixa de Recados da Noiva ({mensagens.length})</span>
+          <span>Caixa de Recados dos Padrinhos ({mensagens.length})</span>
           {mensagens.length > 0 && (
             <span className="w-2 h-2 rounded-full bg-rose-500 absolute top-2 right-2 animate-ping"></span>
           )}
@@ -464,7 +525,7 @@ export default function AdminPanel({
             </section>
           </>
         ) : (
-          /* TAB DE MENSAGENS DOS PADRINHOS (PAINEL DA NOIVA) */
+          /* TAB DE MENSAGENS DOS PADRINHOS */
           <section className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-amber-100/60">
             <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
               <div className="flex items-center gap-3">

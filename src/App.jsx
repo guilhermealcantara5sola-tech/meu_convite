@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { defaultInvitations, fallbackData } from './data/defaultInvitations';
 import ConvitePage from './components/ConvitePage';
 import AdminPanel from './components/AdminPanel';
+import PainelNoiva from './components/PainelNoiva';
 
 export default function App() {
   // Load stored invitations or default ones
@@ -20,8 +21,17 @@ export default function App() {
     return defaultInvitations;
   });
 
-  const [currentId, setCurrentId] = useState('');
-  const [viewMode, setViewMode] = useState('auto'); // 'auto', 'convite', 'admin'
+  // View counter state
+  const [viewCounts, setViewCounts] = useState(() => {
+    try {
+      const saved = localStorage.getItem('meu_convite_views_count');
+      return saved ? JSON.parse(saved) : {};
+    } catch (e) {
+      return {};
+    }
+  });
+
+  const [currentRoute, setCurrentRoute] = useState('');
 
   // Save to localStorage whenever invitations change
   useEffect(() => {
@@ -37,22 +47,35 @@ export default function App() {
     const parseUrlCode = () => {
       let rawData = "";
       
-      // Check hash (#link01 or #andressa-natan)
+      // Check hash (#link01, #noiva, #admin)
       if (window.location.hash && window.location.hash.length > 1) {
         rawData = window.location.hash.substring(1).split('?')[0];
       } 
-      // Check query parameter (?id=link01 or ?link01)
+      // Check query parameter (?id=link01, ?noiva)
       else if (window.location.search && window.location.search.length > 1) {
         const searchParams = new URLSearchParams(window.location.search);
         if (searchParams.has('id')) {
           rawData = searchParams.get('id');
+        } else if (searchParams.has('noiva')) {
+          rawData = 'noiva';
         } else {
           rawData = window.location.search.substring(1).split('&')[0];
         }
       }
 
       const cleanCode = decodeURIComponent(rawData).trim().toLowerCase();
-      setCurrentId(cleanCode);
+      setCurrentRoute(cleanCode);
+
+      // Increment view count if it's a valid godparent invite ID
+      if (cleanCode && cleanCode !== 'noiva' && cleanCode !== 'admin') {
+        setViewCounts((prev) => {
+          const updated = { ...prev, [cleanCode]: (prev[cleanCode] || 0) + 1 };
+          try {
+            localStorage.setItem('meu_convite_views_count', JSON.stringify(updated));
+          } catch (e) {}
+          return updated;
+        });
+      }
     };
 
     parseUrlCode();
@@ -94,36 +117,38 @@ export default function App() {
   // Open invite page directly
   const handleOpenInvite = (id) => {
     window.location.hash = id;
-    setCurrentId(id);
-    setViewMode('convite');
+    setCurrentRoute(id);
   };
 
-  // Switch to admin mode
-  const handleOpenAdmin = () => {
-    setViewMode('admin');
-  };
-
-  // Determine which guest is active
-  const activeGuest = invitations.find(
-    (inv) => inv.id.toLowerCase() === currentId.toLowerCase()
-  ) || (currentId ? { ...fallbackData, id: currentId, nomes: "Queridos Padrinhos" } : null);
-
-  // Determine what to show:
-  // 1. If explicit viewMode is 'admin', show Admin Panel.
-  // 2. If viewMode is 'convite', show Convite Page.
-  // 3. If 'auto': if currentId exists, show Convite Page; otherwise show Admin Panel!
-  const shouldShowConvite = viewMode === 'convite' || (viewMode === 'auto' && Boolean(currentId));
-
-  if (shouldShowConvite && activeGuest) {
+  // 1. ROUTE: Painel Exclusivo da Noiva (#noiva ou ?noiva)
+  if (currentRoute === 'noiva') {
     return (
-      <ConvitePage
-        convidado={activeGuest}
-        onOpenAdmin={() => setViewMode('admin')}
-        allIds={invitations.map(i => i.id)}
+      <PainelNoiva
+        invitations={invitations}
+        onOpenInvite={handleOpenInvite}
+        getViewCounts={() => viewCounts}
       />
     );
   }
 
+  // 2. ROUTE: Convite Individual do Padrinho (#link01, #link02, etc.)
+  if (currentRoute && currentRoute !== 'admin') {
+    const activeGuest = invitations.find(
+      (inv) => inv.id.toLowerCase() === currentRoute.toLowerCase()
+    ) || { ...fallbackData, id: currentRoute, nomes: "Queridos Padrinhos" };
+
+    return (
+      <ConvitePage
+        convidado={activeGuest}
+        onOpenAdmin={() => {
+          window.location.hash = 'admin';
+          setCurrentRoute('admin');
+        }}
+      />
+    );
+  }
+
+  // 3. ROUTE: Painel de Controle Master / Admin (sem código ou #admin)
   return (
     <AdminPanel
       invitations={invitations}
