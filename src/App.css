@@ -1,0 +1,6 @@
+/* Reset any Vite default max-width limits */
+#root {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
